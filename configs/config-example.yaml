@@ -1,0 +1,15 @@
+server:
+  host: <host>
+  port: <port>
+
+database:
+  host: <host>
+  port: <port>
+  username: <username>
+  password: <password>
+  name: <name>
+  ssl_mode: <ssl_mode>
+
+logger:
+  level: <level>
+  format: <format>
