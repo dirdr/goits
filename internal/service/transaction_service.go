@@ -43,7 +43,6 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		return errors.New("source and destination accounts cannot be the same")
 	}
 
-	// Check if accounts exist
 	sourceExists, err := s.accountRepo.AccountExists(ctx, tx, sourceAccountID)
 	if err != nil {
 		return fmt.Errorf("failed to check source account: %w", err)
@@ -60,7 +59,6 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		return errors.New("destination account not found")
 	}
 
-	// Check source account balance
 	sourceBalance, err := s.accountBalanceRepo.GetAccountBalance(ctx, tx, sourceAccountID)
 	if err != nil {
 		return fmt.Errorf("failed to get source account balance: %w", err)
@@ -73,7 +71,6 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		return errors.New("insufficient balance in source account")
 	}
 
-	// Get destination account balance
 	destinationBalance, err := s.accountBalanceRepo.GetAccountBalance(ctx, tx, destinationAccountID)
 	if err != nil {
 		return fmt.Errorf("failed to get destination account balance: %w", err)
@@ -85,7 +82,6 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 	now := time.Now()
 	transferID := uuid.New().String()
 
-	// 1. Save transfer event (source of truth)
 	transferEvent := &domain.TransferEvent{
 		TransferID:    transferID,
 		FromAccountID: sourceAccountID,
@@ -99,7 +95,6 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		return fmt.Errorf("failed to save transfer event: %w", err)
 	}
 
-	// 2. Create journal entries (projections)
 	debitEntry := &domain.JournalEntry{
 		TransactionID: transferID,
 		AccountID:     sourceAccountID,
@@ -126,7 +121,6 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		return fmt.Errorf("failed to save credit journal entry: %w", err)
 	}
 
-	// 3. Update account balances (projections)
 	newSourceBalance := &domain.AccountBalance{
 		AccountID:   sourceAccountID,
 		Balance:     sourceBalance.Balance.Sub(amount),
