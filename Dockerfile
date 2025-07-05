@@ -1,24 +1,24 @@
-FROM golang:1.24-alpine AS builder
+FROM golang:1.24 as builder
 
 WORKDIR /app
-
-RUN apk add --no-cache git
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags "-s -w" -o main cmd/server/main.go
 
-FROM alpine:latest
+FROM alpine:3.22
 
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata
 
-WORKDIR /root/
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+WORKDIR /app
 
 COPY --from=builder /app/main .
-COPY --from=builder /app/configs ./configs
 
 EXPOSE 8080
 

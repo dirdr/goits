@@ -3,14 +3,23 @@ package domain
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
+type EntryType string
+
+const (
+	Debit  EntryType = "debit"
+	Credit EntryType = "credit"
+)
+
 type JournalEntry struct {
-	EntryID       int64           `json:"entry_id"`
-	TransactionID uuid.UUID       `json:"transaction_id"`
-	AccountID     int64           `json:"account_id"`
+	EntryID       uint            `json:"entry_id"`
+	TransactionID string          `json:"transaction_id"`
+	AccountID     uint            `json:"account_id"`
 	Amount        decimal.Decimal `json:"amount"`
+	Type          EntryType       `json:"type"`
+	SourceEventID uint            `json:"source_event_id"`
 	CreatedAt     time.Time       `json:"created_at"`
 }
+

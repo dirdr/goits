@@ -1,13 +1,17 @@
 package domain
 
 import (
-	"encoding/json"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
-type Event struct {
-	EventID   int64           `json:"event_id"`
-	EventType string          `json:"event_type"`
-	Payload   json.RawMessage `json:"payload"`
-	CreatedAt time.Time       `json:"created_at"`
+type TransferEvent struct {
+	EventID       uint            `json:"event_id"`
+	TransferID    string          `json:"transfer_id"`
+	FromAccountID uint            `json:"from_account_id"`
+	ToAccountID   uint            `json:"to_account_id"`
+	Amount        decimal.Decimal `json:"amount"`
+	EventType     string          `json:"event_type"`
+	CreatedAt     time.Time       `json:"created_at"`
 }

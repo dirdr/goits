@@ -1,0 +1,149 @@
+basePath: /
+definitions:
+  handler.CreateAccountRequest:
+    properties:
+      account_id:
+        type: string
+      initial_balance:
+        type: number
+    type: object
+  handler.CreateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      destination_account_id:
+        type: string
+      source_account_id:
+        type: string
+    type: object
+  handler.GetAccountResponse:
+    properties:
+      account_id:
+        type: string
+      balance:
+        type: number
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a simple internal transfers application.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Goits API
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new account with a specified ID and initial balance.
+      parameters:
+      - description: Account creation request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new account
+      tags:
+      - accounts
+  /accounts/{account_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an account's details and current balance by its ID.
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.GetAccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get account by ID
+      tags:
+      - accounts
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Processes a transfer of funds between two accounts.
+      parameters:
+      - description: Transaction creation request
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new transaction
+      tags:
+      - transactions
+schemes:
+- http
+swagger: "2.0"

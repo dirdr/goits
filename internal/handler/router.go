@@ -1,25 +1,31 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"log/slog"
 
-func NewRouter() *gin.Engine {
+	"github.com/dirdr/goits/internal/service"
+	"github.com/gin-gonic/gin"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+func GetRouter(
+	accountService service.AccountService,
+	transactionService service.TransactionService,
+	log *slog.Logger,
+) *gin.Engine {
 	r := gin.Default()
 
-	r.POST("/accounts", createAccount)
-	r.GET("/accounts/:account_id", getAccount)
-	r.POST("/transactions", createTransaction)
+	accountHandler := NewAccountHandler(accountService, log)
+	transactionHandler := NewTransactionHandler(transactionService, log)
+
+	r.POST("/accounts", accountHandler.CreateAccount)
+	r.GET("/accounts/:account_id", accountHandler.GetAccount)
+
+	r.POST("/transactions", transactionHandler.CreateTransaction)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
-}
-
-func createAccount(c *gin.Context) {
-	// Implementation to be added
-}
-
-func getAccount(c *gin.Context) {
-	// Implementation to be added
-}
-
-func createTransaction(c *gin.Context) {
-	// Implementation to be added
 }
