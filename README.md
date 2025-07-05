@@ -38,6 +38,12 @@ Working with money transfers necessitates the use of certain paradigms. This pro
 
 Docker and Compose plugin.
 
+### Dowload
+Clone the repository and cd into it :
+```sh
+git clone git@github.com:dirdr/goits.git && cd goits
+```
+
 ### Run
 
 For easier setup and management of the application and its dependencies (like PostgreSQL), Docker Compose is encouraged:
@@ -50,6 +56,10 @@ For easier setup and management of the application and its dependencies (like Po
    docker compose up -d --build
    ```
 
+## API Endpoints 🗾
+
+Swagger documentation is available to view API descriptions and interact with endpoints. Navigate to [Swagger](http://localhost:8080/swagger/index.html#/) (Replace the port with the one you set in the `.env` file).
+
 ## Test ✅
 
 You can run business rule unit tests with Go tests:
@@ -57,7 +67,3 @@ You can run business rule unit tests with Go tests:
 ```sh
 go test ./test/... -v
 ```
-
-## API Endpoints 🗾
-
-Swagger documentation is available to view API descriptions and interact with endpoints. Navigate to [Swagger](http://localhost:8080/swagger/index.html#/) (Replace the port with the one you set in the `.env` file).
