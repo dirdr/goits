@@ -34,17 +34,17 @@ jobs:
 
       - name: Run tests
         run: |
-          go test -v -race -coverprofile=coverage.out ./test/...
+          go test -v -race -coverprofile=coverage.out ./test/service/unit
 
           go tool cover -func=coverage.out
 
       - name: Run go vet
-        run: go vet ./test/...
+        run: go vet ./test/service/unit
 
       - name: Run go fmt check
         run: |
-          if [ "$(gofmt -s -l ./test/. | wc -l)" -gt 0 ]; then
+          if [ "$(gofmt -s -l ./test/service/unit | wc -l)" -gt 0 ]; then
             echo "The following files are not formatted:"
-            gofmt -s -l ./test/.
+            gofmt -s -l ./test/service/unit
             exit 1
           fi

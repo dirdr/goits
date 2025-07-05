@@ -43,7 +43,7 @@ func TestTransactionService_ProcessTransfer_Success(t *testing.T) {
 		Balance:   decimal.NewFromInt(500),
 		Version:   1,
 	}
-	
+
 	destBalance := &domain.AccountBalance{
 		AccountID: 2,
 		Balance:   decimal.NewFromInt(200),
