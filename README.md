@@ -1,3 +1,6 @@
+![Gitleaks](https://github.com/dirdr/goits/actions/workflows/gitleaks.yaml/badge.svg)
+![Tests](https://github.com/dirdr/goits/actions/workflows/tests.yaml/badge.svg)
+
 # Goits: Mock Internal Transfers System 🏦
 
 Goits is a simple, mocked internal transfers service built with Go.
