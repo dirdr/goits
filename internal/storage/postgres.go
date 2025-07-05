@@ -19,10 +19,11 @@ type Config struct {
 	TimeZone string
 }
 
-func NewPostgresDB(cfg Config, log *slog.Logger) (*gorm.DB, error) {
+func NewPostgresDB(cfg Config, appLogger *slog.Logger) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
 		cfg.Host, cfg.User, cfg.Password, cfg.DBName, cfg.Port, cfg.SSLMode, cfg.TimeZone)
-	log.Info("Database DSN", "dsn", dsn)
+
+	appLogger.Info("Database DSN", "dsn", dsn)
 
 	gormConfig := &gorm.Config{
 		Logger:                 logger.Default.LogMode(logger.Warn),
@@ -35,12 +36,12 @@ func NewPostgresDB(cfg Config, log *slog.Logger) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	log.Info("Running database migrations...")
+	appLogger.Info("Running database migrations...")
 	err = db.AutoMigrate(&GormAccount{}, &GormTransferEvent{}, &GormJournalEntry{}, &GormAccountBalance{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to auto migrate database: %w", err)
 	}
-	log.Info("Database migrations completed.")
+	appLogger.Info("Database migrations completed.")
 
 	return db, nil
 }

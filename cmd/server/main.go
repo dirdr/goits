@@ -13,14 +13,11 @@ import (
 )
 
 func main() {
-	log := logger.New("info")
-	slog.SetDefault(log)
-
-	log.Info("Starting goits application...")
+	appLogger := initLogger()
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Error("Failed to load configuration", "error", err)
+		appLogger.Error("Failed to load configuration", "error", err)
 		return
 	}
 
@@ -34,17 +31,9 @@ func main() {
 		TimeZone: cfg.Database.TimeZone,
 	}
 
-	log.Info(dbConfig.Host)
-	log.Info(dbConfig.Port)
-	log.Info(dbConfig.User)
-	log.Info(dbConfig.Password)
-	log.Info(dbConfig.DBName)
-	log.Info(dbConfig.SSLMode)
-	log.Info(dbConfig.TimeZone)
-
-	db, err := storage.NewPostgresDB(dbConfig, log)
+	db, err := storage.NewPostgresDB(dbConfig, appLogger)
 	if err != nil {
-		log.Error("Failed to connect to database", "error", err)
+		appLogger.Error("Failed to connect to database", "error", err)
 		return
 	}
 
@@ -55,12 +44,21 @@ func main() {
 
 	accountService := service.NewAccountService(accountRepo, accountBalanceRepo)
 	transactionService := service.NewTransactionService(accountRepo, accountBalanceRepo, transferEventRepo, journalRepo)
-	integrityCheckService := service.NewIntegrityCheckService(journalRepo)
+	integrityService := service.NewIntegrityService(journalRepo)
 
-	r := handler.GetRouter(accountService, transactionService, integrityCheckService, log, db)
+	r := handler.GetRouter(accountService, transactionService, integrityService, appLogger, db)
 
-	log.Info("Server starting", "port", cfg.Server.Port)
+	appLogger.Info("Server starting", "port", cfg.Server.Port)
 	if err := r.Run(cfg.Server.Port); err != nil {
-		log.Error("Failed to start server", "error", err)
+		appLogger.Error("Failed to start server", "error", err)
 	}
+}
+
+func initLogger() *slog.Logger {
+	logger := logger.New("info")
+	slog.SetDefault(logger)
+
+	logger.Info("Starting goits application...")
+
+	return logger
 }
