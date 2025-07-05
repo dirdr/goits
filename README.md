@@ -48,3 +48,5 @@ go test ./test/... -v
 ```
 
 ### API Endpoints
+
+A Swagger book is available to see API description and play with endpoints, head down to [Swager](http://localhost:8080/swagger/index.html#/) (Replace the port by the one you set in the `.env` file)

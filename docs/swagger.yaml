@@ -1,9 +1,8 @@
-basePath: /
 definitions:
   handler.CreateAccountRequest:
     properties:
       account_id:
-        type: string
+        type: integer
       initial_balance:
         type: number
     type: object
@@ -12,30 +11,23 @@ definitions:
       amount:
         type: number
       destination_account_id:
-        type: string
+        type: integer
       source_account_id:
-        type: string
+        type: integer
     type: object
   handler.GetAccountResponse:
     properties:
       account_id:
-        type: string
+        type: integer
       balance:
         type: number
+      updated_at:
+        type: string
+      version:
+        type: integer
     type: object
-host: localhost:8080
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a simple internal transfers application.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Goits API
-  version: "1.0"
+  contact: {}
 paths:
   /accounts:
     post:
@@ -144,6 +136,4 @@ paths:
       summary: Create a new transaction
       tags:
       - transactions
-schemes:
-- http
 swagger: "2.0"

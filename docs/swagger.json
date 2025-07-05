@@ -1,25 +1,8 @@
 {
-    "schemes": [
-        "http"
-    ],
     "swagger": "2.0",
     "info": {
-        "description": "This is a simple internal transfers application.",
-        "title": "Goits API",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/",
     "paths": {
         "/accounts": {
             "post": {
@@ -190,7 +173,7 @@
             "type": "object",
             "properties": {
                 "account_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "initial_balance": {
                     "type": "number"
@@ -204,10 +187,10 @@
                     "type": "number"
                 },
                 "destination_account_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "source_account_id": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },
@@ -215,10 +198,16 @@
             "type": "object",
             "properties": {
                 "account_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "balance": {
                     "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         }
