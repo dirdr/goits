@@ -39,7 +39,9 @@ Working with money transfers necessitates the use of certain paradigms. This pro
 Docker and Compose plugin.
 
 ### Dowload
+
 Clone the repository and cd into it :
+
 ```sh
 git clone git@github.com:dirdr/goits.git && cd goits
 ```
@@ -67,3 +69,9 @@ You can run business rule unit tests with Go tests:
 ```sh
 go test ./test/... -v
 ```
+
+## Futur improvements 📈
+
+- Add Authn and Authz
+- Deploy the service on my VPS
+- Load test concurrent transactions
