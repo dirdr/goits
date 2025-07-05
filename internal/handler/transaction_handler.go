@@ -6,17 +6,20 @@ import (
 
 	"github.com/dirdr/goits/internal/service"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type TransactionHandler struct {
 	transactionService service.TransactionService
 	log                *slog.Logger
+	db                 *gorm.DB
 }
 
-func NewTransactionHandler(transactionService service.TransactionService, log *slog.Logger) *TransactionHandler {
+func NewTransactionHandler(transactionService service.TransactionService, log *slog.Logger, db *gorm.DB) *TransactionHandler {
 	return &TransactionHandler{
 		transactionService: transactionService,
 		log:                log,
+		db:                 db,
 	}
 }
 
@@ -40,7 +43,9 @@ func (h *TransactionHandler) CreateTransaction(c *gin.Context) {
 		return
 	}
 
-	err := h.transactionService.ProcessTransfer(c.Request.Context(), req.SourceAccountID, req.DestinationAccountID, req.Amount)
+	err := h.db.WithContext(c.Request.Context()).Transaction(func(tx *gorm.DB) error {
+		return h.transactionService.ProcessTransfer(c.Request.Context(), tx, req.SourceAccountID, req.DestinationAccountID, req.Amount)
+	})
 	if err != nil {
 		h.log.Error("Failed to process transaction", "source_account_id", req.SourceAccountID, "destination_account_id", req.DestinationAccountID, "amount", req.Amount, "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

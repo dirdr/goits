@@ -15,20 +15,26 @@ import (
 type accountService struct {
 	accountRepo        repository.AccountRepository
 	accountBalanceRepo repository.AccountBalanceRepository
-	db                 *gorm.DB
 }
 
-func NewAccountService(accountRepo repository.AccountRepository, accountBalanceRepo repository.AccountBalanceRepository, db *gorm.DB) AccountService {
+func NewAccountService(accountRepo repository.AccountRepository, accountBalanceRepo repository.AccountBalanceRepository) AccountService {
 	return &accountService{
 		accountRepo:        accountRepo,
 		accountBalanceRepo: accountBalanceRepo,
-		db:                 db,
 	}
 }
 
-func (s *accountService) CreateAccount(ctx context.Context, accountID uint, initialBalance decimal.Decimal) (*domain.Account, error) {
+func (s *accountService) CreateAccount(ctx context.Context, tx *gorm.DB, accountID uint, initialBalance decimal.Decimal) (*domain.Account, error) {
 	if initialBalance.IsNegative() {
 		return nil, errors.New("initial balance cannot be negative")
+	}
+
+	exists, err := s.accountRepo.AccountExists(ctx, tx, accountID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check for existing account: %w", err)
+	}
+	if exists {
+		return nil, errors.New("account with this ID already exists")
 	}
 
 	account := &domain.Account{
@@ -37,37 +43,22 @@ func (s *accountService) CreateAccount(ctx context.Context, accountID uint, init
 		UpdatedAt: time.Now(),
 	}
 
-	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		exists, err := s.accountRepo.AccountExists(ctx, tx, accountID)
-		if err != nil {
-			return fmt.Errorf("failed to check for existing account: %w", err)
-		}
-		if exists {
-			return errors.New("account with this ID already exists")
-		}
-
-		err = s.accountRepo.CreateAccount(ctx, tx, account)
-		if err != nil {
-			return fmt.Errorf("failed to create account: %w", err)
-		}
-
-		balance := &domain.AccountBalance{
-			AccountID:   accountID,
-			Balance:     initialBalance,
-			Version:     1,
-			LastEventID: 0,
-			UpdatedAt:   time.Now(),
-		}
-
-		err = s.accountBalanceRepo.UpsertAccountBalance(ctx, tx, balance)
-		if err != nil {
-			return fmt.Errorf("failed to create initial balance: %w", err)
-		}
-
-		return nil
-	})
+	err = s.accountRepo.CreateAccount(ctx, tx, account)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create account: %w", err)
+	}
+
+	balance := &domain.AccountBalance{
+		AccountID:   accountID,
+		Balance:     initialBalance,
+		Version:     1,
+		LastEventID: 0,
+		UpdatedAt:   time.Now(),
+	}
+
+	err = s.accountBalanceRepo.UpsertAccountBalance(ctx, tx, balance)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create initial balance: %w", err)
 	}
 
 	return account, nil

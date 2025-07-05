@@ -53,10 +53,10 @@ func main() {
 	transferEventRepo := storage.NewGormTransferEventRepository(db)
 	journalRepo := storage.NewGormJournalRepository(db)
 
-	accountService := service.NewAccountService(accountRepo, accountBalanceRepo, db)
-	transactionService := service.NewTransactionService(accountRepo, accountBalanceRepo, transferEventRepo, journalRepo, db)
+	accountService := service.NewAccountService(accountRepo, accountBalanceRepo)
+	transactionService := service.NewTransactionService(accountRepo, accountBalanceRepo, transferEventRepo, journalRepo)
 
-	r := handler.GetRouter(accountService, transactionService, log)
+	r := handler.GetRouter(accountService, transactionService, log, db)
 
 	log.Info("Server starting", "port", cfg.Server.Port)
 	if err := r.Run(cfg.Server.Port); err != nil {

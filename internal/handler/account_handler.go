@@ -5,19 +5,23 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dirdr/goits/internal/domain"
 	"github.com/dirdr/goits/internal/service"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type AccountHandler struct {
 	accountService service.AccountService
 	log            *slog.Logger
+	db             *gorm.DB
 }
 
-func NewAccountHandler(accountService service.AccountService, log *slog.Logger) *AccountHandler {
+func NewAccountHandler(accountService service.AccountService, log *slog.Logger, db *gorm.DB) *AccountHandler {
 	return &AccountHandler{
 		accountService: accountService,
 		log:            log,
+		db:             db,
 	}
 }
 
@@ -40,7 +44,12 @@ func (h *AccountHandler) CreateAccount(c *gin.Context) {
 		return
 	}
 
-	account, err := h.accountService.CreateAccount(c.Request.Context(), uint(req.AccountID), req.InitialBalance)
+	var account *domain.Account
+	err := h.db.WithContext(c.Request.Context()).Transaction(func(tx *gorm.DB) error {
+		var err error
+		account, err = h.accountService.CreateAccount(c.Request.Context(), tx, uint(req.AccountID), req.InitialBalance)
+		return err
+	})
 	if err != nil {
 		h.log.Error("Failed to create account", "account_id", req.AccountID, "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

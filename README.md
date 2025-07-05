@@ -40,10 +40,8 @@ For easier setup and management of the application and its dependencies (like Po
 You can run business rules unit test with go tests:
 
 ```sh
-go test ./test/...
+go test ./test/... -v
 
 ```
 
 ### API Endpoints
-
-API endpoints are available in the swagger instance created with this micro-service. Find it at `http://localhost:<port>/swagger/index.html`

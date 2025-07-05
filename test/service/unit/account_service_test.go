@@ -53,31 +53,18 @@ func (m *MockAccountBalanceRepository) UpsertAccountBalance(ctx context.Context,
 	return args.Error(0)
 }
 
-type MockDB struct {
-	*gorm.DB
-	mock.Mock
-}
-
-func (m *MockDB) WithContext(ctx context.Context) *gorm.DB {
-	return m.DB
-}
-
-func (m *MockDB) Transaction(fn func(*gorm.DB) error) error {
-	return fn(m.DB)
-}
-
 func TestAccountService_CreateAccount_Success(t *testing.T) {
 	mockAccountRepo := &MockAccountRepository{}
 	mockBalanceRepo := &MockAccountBalanceRepository{}
-	mockDB := &MockDB{DB: &gorm.DB{}}
+	tx := &gorm.DB{}
 
-	mockAccountRepo.On("AccountExists", mock.Anything, mock.Anything, uint(1)).Return(false, nil)
-	mockAccountRepo.On("CreateAccount", mock.Anything, mock.Anything, mock.AnythingOfType("*domain.Account")).Return(nil)
-	mockBalanceRepo.On("UpsertAccountBalance", mock.Anything, mock.Anything, mock.AnythingOfType("*domain.AccountBalance")).Return(nil)
+	mockAccountRepo.On("AccountExists", mock.Anything, tx, uint(1)).Return(false, nil)
+	mockAccountRepo.On("CreateAccount", mock.Anything, tx, mock.AnythingOfType("*domain.Account")).Return(nil)
+	mockBalanceRepo.On("UpsertAccountBalance", mock.Anything, tx, mock.AnythingOfType("*domain.AccountBalance")).Return(nil)
 
-	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo, mockDB)
+	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo)
 
-	account, err := svc.CreateAccount(context.Background(), 1, decimal.NewFromInt(100))
+	account, err := svc.CreateAccount(context.Background(), tx, 1, decimal.NewFromInt(100))
 
 	require.NoError(t, err)
 	assert.NotNil(t, account)
@@ -89,11 +76,11 @@ func TestAccountService_CreateAccount_Success(t *testing.T) {
 func TestAccountService_CreateAccount_NegativeBalance(t *testing.T) {
 	mockAccountRepo := &MockAccountRepository{}
 	mockBalanceRepo := &MockAccountBalanceRepository{}
-	mockDB := &MockDB{DB: &gorm.DB{}}
+	tx := &gorm.DB{}
 
-	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo, mockDB)
+	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo)
 
-	account, err := svc.CreateAccount(context.Background(), 1, decimal.NewFromInt(-10))
+	account, err := svc.CreateAccount(context.Background(), tx, 1, decimal.NewFromInt(-10))
 
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "initial balance cannot be negative")
@@ -103,7 +90,6 @@ func TestAccountService_CreateAccount_NegativeBalance(t *testing.T) {
 func TestAccountService_GetAccountByID_Success(t *testing.T) {
 	mockAccountRepo := &MockAccountRepository{}
 	mockBalanceRepo := &MockAccountBalanceRepository{}
-	mockDB := &MockDB{DB: &gorm.DB{}}
 
 	expectedAccount := &domain.Account{
 		ID:        1,
@@ -113,7 +99,7 @@ func TestAccountService_GetAccountByID_Success(t *testing.T) {
 
 	mockAccountRepo.On("GetAccountByID", mock.Anything, (*gorm.DB)(nil), uint(1)).Return(expectedAccount, nil)
 
-	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo, mockDB)
+	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo)
 
 	account, err := svc.GetAccountByID(context.Background(), 1)
 
@@ -126,7 +112,6 @@ func TestAccountService_GetAccountByID_Success(t *testing.T) {
 func TestAccountService_GetAccountBalance_Success(t *testing.T) {
 	mockAccountRepo := &MockAccountRepository{}
 	mockBalanceRepo := &MockAccountBalanceRepository{}
-	mockDB := &MockDB{DB: &gorm.DB{}}
 
 	expectedBalance := &domain.AccountBalance{
 		AccountID:   1,
@@ -138,7 +123,7 @@ func TestAccountService_GetAccountBalance_Success(t *testing.T) {
 
 	mockBalanceRepo.On("GetAccountBalance", mock.Anything, (*gorm.DB)(nil), uint(1)).Return(expectedBalance, nil)
 
-	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo, mockDB)
+	svc := service.NewAccountService(mockAccountRepo, mockBalanceRepo)
 
 	balance, err := svc.GetAccountBalance(context.Background(), 1)
 
