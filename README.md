@@ -50,7 +50,7 @@ For easier setup and management of the application and its dependencies (like Po
    docker compose up -d --build
    ```
 
-## Test
+## Test ✅
 
 You can run business rule unit tests with Go tests:
 
@@ -58,6 +58,6 @@ You can run business rule unit tests with Go tests:
 go test ./test/... -v
 ```
 
-## API Endpoints
+## API Endpoints 🗾
 
 Swagger documentation is available to view API descriptions and interact with endpoints. Navigate to [Swagger](http://localhost:8080/swagger/index.html#/) (Replace the port with the one you set in the `.env` file).
