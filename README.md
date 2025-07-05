@@ -1,24 +1,38 @@
+# Goits: Mock Internal Transfers System 🏦
+
+Goits is a simple, mocked internal transfers service built with Go. It is designed to ensure data consistency and integrity.
+
 ![Gitleaks](https://github.com/dirdr/goits/actions/workflows/gitleaks.yaml/badge.svg)
 ![Tests](https://github.com/dirdr/goits/actions/workflows/tests.yaml/badge.svg)
 
-# Goits: Mock Internal Transfers System 🏦
+## Table of Contents
 
-Goits is a simple, mocked internal transfers service built with Go.
+- [Assumptions](#assumptions)
+- [Technical Requirements](#technical-requirements)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Run](#run)
+  - [Using Docker Compose](#using-docker-compose)
+  - [Test](#test)
+- [API Endpoints](#api-endpoints)
 
-## Assumptions
+## Assumptions 🧑‍🔬
 
-- **Single Currency:** All accounts operate under the same currency. No multi-currency support is implemented.
-- **No Authentication/Authorization:** The API endpoints are publicly accessible without any authentication or authorization mechanisms. : _This imply that this service is not hosted and that you will need to run it locally_
+- **Single Currency:** All accounts operate under the same currency.
+- **No Authentication/Authorization:** The API endpoints are publicly accessible without any authentication or authorization mechanisms.
 
-## Technical Requirements
+> [!WARNING]
+> Given these assumptions and the fact that this project is a simple test service, do not use it as a real money transfer system!
 
-working with money trasnfert imopsent the use of certain paradigms. This project use various mechanism to ensure data consistency and integrity
+## Technical Requirements ⚙️
+
+Working with money transfers necessitates the use of certain paradigms. This project uses various mechanisms to ensure data consistency and integrity:
 
 1. Event Sourcing (as a source of truth for transactions)
-2. Double bookkeeping to check at all time that $T_{credit} = T_{debit}$
-3. Optimistic locking of the account_balances to prevent lost update while not taking lock for too long
+2. Double-entry bookkeeping to check at all times that $T_{credit} = T_{debit}$
+3. Optimistic locking inside `account_balances` projection to prevent lost updates while not holding locks for too long
 
-## Getting Started
+## Getting Started 🚀
 
 ### Prerequisites
 
@@ -26,12 +40,10 @@ Docker and Compose plugin.
 
 ### Run
 
-#### Using Docker Compose
-
-For easier setup and management of the application and its dependencies (like PostgreSQL) Docker compose is encouraged
+For easier setup and management of the application and its dependencies (like PostgreSQL), Docker Compose is encouraged:
 
 1. Copy `.env.example` to `.env`
-2. Fill env variables
+2. Fill in environment variables
 3. **Start the services:**
 
    ```sh
@@ -40,13 +52,12 @@ For easier setup and management of the application and its dependencies (like Po
 
 ### Test
 
-You can run business rules unit test with go tests:
+You can run business rule unit tests with Go tests:
 
 ```sh
 go test ./test/... -v
-
 ```
 
 ### API Endpoints
 
-A Swagger book is available to see API description and play with endpoints, head down to [Swager](http://localhost:8080/swagger/index.html#/) (Replace the port by the one you set in the `.env` file)
+Swagger documentation is available to view API descriptions and interact with endpoints. Navigate to [Swagger](http://localhost:8080/swagger/index.html#/) (Replace the port with the one you set in the `.env` file).
