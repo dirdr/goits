@@ -25,7 +25,7 @@ func NewIntegrityHandler(integrityService service.IntegrityService, log *slog.Lo
 
 // CheckIntegrity godoc
 // @Summary Check double bookkeeping integrity
-// @Description Verifies that the total debits equal total credits in the journal entries to ensure double bookkeeping integrity.
+// @Description Verifies that the total debits equal total credits in the journal entries.
 // @Tags integrity
 // @Accept json
 // @Produce json
