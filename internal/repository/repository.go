@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/dirdr/goits/internal/domain"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -24,4 +25,5 @@ type TransferEventRepository interface {
 
 type JournalRepository interface {
 	SaveJournalEntry(ctx context.Context, tx *gorm.DB, entry *domain.JournalEntry) error
+	GetTotalsByEntryType(ctx context.Context, tx *gorm.DB) (map[domain.EntryType]decimal.Decimal, error)
 }

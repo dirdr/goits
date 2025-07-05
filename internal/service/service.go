@@ -17,3 +17,14 @@ type AccountService interface {
 type TransactionService interface {
 	ProcessTransfer(ctx context.Context, tx *gorm.DB, sourceAccountID, destinationAccountID uint, amount decimal.Decimal) error
 }
+
+type IntegrityCheckService interface {
+	VerifyDoubleBookkeeping(ctx context.Context) (*IntegrityCheckResult, error)
+}
+
+type IntegrityCheckResult struct {
+	IsValid      bool            `json:"is_valid"`
+	TotalDebits  decimal.Decimal `json:"total_debits"`
+	TotalCredits decimal.Decimal `json:"total_credits"`
+	Difference   decimal.Decimal `json:"difference"`
+}

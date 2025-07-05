@@ -55,8 +55,9 @@ func main() {
 
 	accountService := service.NewAccountService(accountRepo, accountBalanceRepo)
 	transactionService := service.NewTransactionService(accountRepo, accountBalanceRepo, transferEventRepo, journalRepo)
+	integrityCheckService := service.NewIntegrityCheckService(journalRepo)
 
-	r := handler.GetRouter(accountService, transactionService, log, db)
+	r := handler.GetRouter(accountService, transactionService, integrityCheckService, log, db)
 
 	log.Info("Server starting", "port", cfg.Server.Port)
 	if err := r.Run(cfg.Server.Port); err != nil {

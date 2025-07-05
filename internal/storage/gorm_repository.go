@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/dirdr/goits/internal/domain"
+	"github.com/shopspring/decimal"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -164,7 +165,7 @@ func (r *GormTransferEventRepository) SaveTransferEvent(ctx context.Context, tx 
 	if result.Error != nil {
 		return fmt.Errorf("failed to save transfer event: %w", result.Error)
 	}
-	
+
 	// Update the event ID in the domain object
 	event.EventID = gormEvent.EventID
 	return nil
@@ -199,4 +200,33 @@ func (r *GormJournalRepository) SaveJournalEntry(ctx context.Context, tx *gorm.D
 		return fmt.Errorf("failed to save journal entry: %w", result.Error)
 	}
 	return nil
+}
+
+func (r *GormJournalRepository) GetTotalsByEntryType(ctx context.Context, tx *gorm.DB) (map[domain.EntryType]decimal.Decimal, error) {
+	var results []struct {
+		Type  domain.EntryType
+		Total decimal.Decimal
+	}
+
+	db := r.db
+	if tx != nil {
+		db = tx
+	}
+
+	result := db.WithContext(ctx).
+		Model(&GormJournalEntry{}).
+		Select("type, SUM(amount) as total").
+		Group("type").
+		Find(&results)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to get totals by entry type: %w", result.Error)
+	}
+
+	totals := make(map[domain.EntryType]decimal.Decimal)
+	for _, r := range results {
+		totals[r.Type] = r.Total
+	}
+
+	return totals, nil
 }

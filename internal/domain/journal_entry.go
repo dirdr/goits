@@ -22,4 +22,3 @@ type JournalEntry struct {
 	SourceEventID uint            `json:"source_event_id"`
 	CreatedAt     time.Time       `json:"created_at"`
 }
-

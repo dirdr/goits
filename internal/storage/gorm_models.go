@@ -35,13 +35,13 @@ func (GormTransferEvent) TableName() string {
 
 // 2. Journal Entries (double-entry projection)
 type GormJournalEntry struct {
-	EntryID       uint            `gorm:"primaryKey;autoIncrement"`
-	TransactionID string          `gorm:"type:varchar(36);not null;index"`
-	AccountID     uint            `gorm:"not null;index"`
-	Amount        decimal.Decimal `gorm:"type:numeric(20,8);not null"`
+	EntryID       uint             `gorm:"primaryKey;autoIncrement"`
+	TransactionID string           `gorm:"type:varchar(36);not null;index"`
+	AccountID     uint             `gorm:"not null;index"`
+	Amount        decimal.Decimal  `gorm:"type:numeric(20,8);not null"`
 	Type          domain.EntryType `gorm:"type:varchar(50);not null"` // "debit" or "credit"
-	SourceEventID uint            `gorm:"not null"`                   // Links to event
-	CreatedAt     time.Time       `gorm:"not null"`
+	SourceEventID uint             `gorm:"not null"`                  // Links to event
+	CreatedAt     time.Time        `gorm:"not null"`
 }
 
 func (GormJournalEntry) TableName() string {
@@ -50,11 +50,11 @@ func (GormJournalEntry) TableName() string {
 
 // 3. Account Balances (performance projection)
 type GormAccountBalance struct {
-	AccountID     uint            `gorm:"primaryKey"`
-	Balance       decimal.Decimal `gorm:"type:numeric(20,8);not null"`
-	Version       int             `gorm:"not null"`
-	LastEventID   uint            `gorm:"not null"`
-	UpdatedAt     time.Time       `gorm:"not null"`
+	AccountID   uint            `gorm:"primaryKey"`
+	Balance     decimal.Decimal `gorm:"type:numeric(20,8);not null"`
+	Version     int             `gorm:"not null"`
+	LastEventID uint            `gorm:"not null"`
+	UpdatedAt   time.Time       `gorm:"not null"`
 }
 
 func (GormAccountBalance) TableName() string {

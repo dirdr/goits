@@ -31,6 +31,11 @@ func (m *MockJournalRepository) SaveJournalEntry(ctx context.Context, tx *gorm.D
 	return args.Error(0)
 }
 
+func (m *MockJournalRepository) GetTotalsByEntryType(ctx context.Context, tx *gorm.DB) (map[domain.EntryType]decimal.Decimal, error) {
+	args := m.Called(ctx, tx)
+	return args.Get(0).(map[domain.EntryType]decimal.Decimal), args.Error(1)
+}
+
 func TestTransactionService_ProcessTransfer_Success(t *testing.T) {
 	mockAccountRepo := &MockAccountRepository{}
 	mockBalanceRepo := &MockAccountBalanceRepository{}
