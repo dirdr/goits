@@ -17,6 +17,7 @@ type AccountRepository interface {
 type AccountBalanceRepository interface {
 	GetAccountBalance(ctx context.Context, tx *gorm.DB, accountID uint) (*domain.AccountBalance, error)
 	UpsertAccountBalance(ctx context.Context, tx *gorm.DB, balance *domain.AccountBalance) error
+	UpdateAccountBalanceWithVersion(ctx context.Context, tx *gorm.DB, balance *domain.AccountBalance, expectedVersion int) error
 }
 
 type TransferEventRepository interface {

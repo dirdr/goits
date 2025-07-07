@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/dirdr/goits/internal/domain"
@@ -35,10 +36,13 @@ func NewTransactionService(
 }
 
 func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, sourceAccountID, destinationAccountID uint, amount decimal.Decimal) error {
+	return s.processTransferWithOptimisticLocking(ctx, tx, sourceAccountID, destinationAccountID, amount)
+}
+
+func (s *transactionService) processTransferWithOptimisticLocking(ctx context.Context, tx *gorm.DB, sourceAccountID, destinationAccountID uint, amount decimal.Decimal) error {
 	if amount.IsNegative() || amount.IsZero() {
 		return errors.New("transfer amount must be positive")
 	}
-
 	if sourceAccountID == destinationAccountID {
 		return errors.New("source and destination accounts cannot be the same")
 	}
@@ -90,6 +94,7 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		EventType:     "TransferProcessed",
 		CreatedAt:     now,
 	}
+
 	err = s.transferEventRepo.SaveTransferEvent(ctx, tx, transferEvent)
 	if err != nil {
 		return fmt.Errorf("failed to save transfer event: %w", err)
@@ -128,7 +133,7 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		LastEventID: transferEvent.EventID,
 		UpdatedAt:   now,
 	}
-	err = s.accountBalanceRepo.UpsertAccountBalance(ctx, tx, newSourceBalance)
+	err = s.accountBalanceRepo.UpdateAccountBalanceWithVersion(ctx, tx, newSourceBalance, sourceBalance.Version)
 	if err != nil {
 		return fmt.Errorf("failed to update source account balance: %w", err)
 	}
@@ -140,10 +145,14 @@ func (s *transactionService) ProcessTransfer(ctx context.Context, tx *gorm.DB, s
 		LastEventID: transferEvent.EventID,
 		UpdatedAt:   now,
 	}
-	err = s.accountBalanceRepo.UpsertAccountBalance(ctx, tx, newDestinationBalance)
+	err = s.accountBalanceRepo.UpdateAccountBalanceWithVersion(ctx, tx, newDestinationBalance, destinationBalance.Version)
 	if err != nil {
 		return fmt.Errorf("failed to update destination account balance: %w", err)
 	}
 
 	return nil
+}
+
+func isOptimisticLockingError(err error) bool {
+	return strings.Contains(err.Error(), "optimistic locking failed")
 }

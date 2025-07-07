@@ -68,3 +68,29 @@ func (repo *GormAccountBalanceRepository) UpsertAccountBalance(ctx context.Conte
 	}
 	return nil
 }
+
+func (repo *GormAccountBalanceRepository) UpdateAccountBalanceWithVersion(ctx context.Context, tx *gorm.DB, balance *domain.AccountBalance, expectedVersion int) error {
+	db := repo.db
+	if tx != nil {
+		db = tx
+	}
+
+	result := db.WithContext(ctx).Model(&GormAccountBalance{}).
+		Where("account_id = ? AND version = ?", balance.AccountID, expectedVersion).
+		Updates(map[string]interface{}{
+			"balance":       balance.Balance,
+			"version":       balance.Version,
+			"last_event_id": balance.LastEventID,
+			"updated_at":    balance.UpdatedAt,
+		})
+
+	if result.Error != nil {
+		return fmt.Errorf("failed to update account balance: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("optimistic locking failed: account balance was modified by another transaction")
+	}
+
+	return nil
+}

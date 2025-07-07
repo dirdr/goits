@@ -13,29 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type MockTransferEventRepository struct {
-	mock.Mock
-}
-
-func (m *MockTransferEventRepository) SaveTransferEvent(ctx context.Context, tx *gorm.DB, event *domain.TransferEvent) error {
-	args := m.Called(ctx, tx, event)
-	return args.Error(0)
-}
-
-type MockJournalRepository struct {
-	mock.Mock
-}
-
-func (m *MockJournalRepository) SaveJournalEntry(ctx context.Context, tx *gorm.DB, entry *domain.JournalEntry) error {
-	args := m.Called(ctx, tx, entry)
-	return args.Error(0)
-}
-
-func (m *MockJournalRepository) GetTotalsByEntryType(ctx context.Context, tx *gorm.DB) (map[domain.EntryType]decimal.Decimal, error) {
-	args := m.Called(ctx, tx)
-	return args.Get(0).(map[domain.EntryType]decimal.Decimal), args.Error(1)
-}
-
 func TestTransactionService_ProcessTransfer_Success(t *testing.T) {
 	mockAccountRepo := &MockAccountRepository{}
 	mockBalanceRepo := &MockAccountBalanceRepository{}
@@ -61,7 +38,7 @@ func TestTransactionService_ProcessTransfer_Success(t *testing.T) {
 	mockBalanceRepo.On("GetAccountBalance", mock.Anything, tx, uint(2)).Return(destBalance, nil)
 	mockEventRepo.On("SaveTransferEvent", mock.Anything, tx, mock.AnythingOfType("*domain.TransferEvent")).Return(nil)
 	mockJournalRepo.On("SaveJournalEntry", mock.Anything, tx, mock.AnythingOfType("*domain.JournalEntry")).Return(nil).Twice()
-	mockBalanceRepo.On("UpsertAccountBalance", mock.Anything, tx, mock.AnythingOfType("*domain.AccountBalance")).Return(nil).Twice()
+	mockBalanceRepo.On("UpdateAccountBalanceWithVersion", mock.Anything, tx, mock.AnythingOfType("*domain.AccountBalance"), 1).Return(nil).Twice()
 
 	svc := service.NewTransactionService(mockAccountRepo, mockBalanceRepo, mockEventRepo, mockJournalRepo)
 
